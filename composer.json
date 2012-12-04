@@ -1,0 +1,18 @@
+{
+	"name": "markguinn/silverstripe-email-helpers",
+	"description": "Silverstripe extension containing SMTP mailer class and some other classes for HTML emails",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe", "email", "smtp", "emogrifier"],
+	"authors": [
+		{
+			"name": "Mark Guinn",
+			"homepage": "http://github.com/markguinn",
+            "role": "Developer"
+		}
+	],
+
+	"require":
+	{
+		"silverstripe/framework": "3.*"
+	}
+}
