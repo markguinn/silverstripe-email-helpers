@@ -16,10 +16,26 @@ Download this module into a folder in the root of your project. Does not require
 To use the SMTP mailer at the following code to your _config.php:
 
 ```php
-$mailer = new SmtpMailer('yourserver.com', 'username', password');
+$mailer = new SmtpMailer('yourserver.com', 'username', 'password');
 Email::set_mailer($mailer);
 ```
 
 To use the styled email, just literally use the StyledHtmlEmail class where you'd normally use the Email class
-and add a single style block in the body of the email. The <style> block will be removed.
+and add a single style tag in the body of the email. For example:
+
+```html
+<style type="text/css">
+.bigred {
+	color: red;
+	font-size: 30px;
+}
+</style>
+Hello <span class="bigred">CUSTOMERS</span>.
+```
+
+Would be sent as:
+
+```html
+Hello <span style="color:red; font-size:30px">CUSTOMERS</span>.
+```
 
