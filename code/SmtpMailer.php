@@ -1,7 +1,4 @@
 <?php
-require_once BASE_PATH . '/' . EMAIL_HELPERS_BASE . '/thirdparty/class.phpmailer.php';
-require_once BASE_PATH . '/' . EMAIL_HELPERS_BASE . '/thirdparty/class.smtp.php';
- 
 /**
  * This is a simple extension of the built in SS email class
  * that uses the PHPMailer library to send emails via SMTP.
