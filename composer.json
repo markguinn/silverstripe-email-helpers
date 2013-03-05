@@ -17,5 +17,8 @@
 	},
 	"extra": {
 		"installer-name": "email-helpers"
-	}
+	},
+	"replace": {
+    		"markguinn/silverstripe-email-helpers": "*"
+    	}
 }
