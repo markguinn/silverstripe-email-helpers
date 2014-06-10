@@ -16,7 +16,10 @@
 		"silverstripe/framework": "3.*"
 	},
 	"extra": {
-		"installer-name": "email-helpers"
+		"installer-name": "email-helpers",
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
 	},
 	"replace": {
     		"markguinn/silverstripe-email-helpers": "*"
