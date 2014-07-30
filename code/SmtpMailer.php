@@ -34,18 +34,26 @@ class SmtpMailer extends Mailer {
 	protected $pass;
 	
 	/**
-	 * @var string $pass - smtp password
+ 	 * @var string $charset - charset for mail message
+	 */
+	protected $charset;
+	
+	/**
+	 * @var string $tls - use tls?
 	 */
 	protected $tls;
 	
 	/**
 	 * creates and configures the mailer
 	 */
-	function __construct($host, $user=false, $pass=false, $tls=false) {
+	function __construct($host, $user=false, $pass=false, $tls=false, $charset=false) {
 		$this->setHost($host);
 		$this->setCredentials($user, $pass);
 		if ($tls) {
 		    $this->tls = $tls;
+		}
+		if ($charset) {
+		    $this->charset = $charset;
 		}
 	}
 	
@@ -85,6 +93,9 @@ class SmtpMailer extends Mailer {
 		}
 		if ($this->tls) {
 		    $mail->SMTPSecure = 'tls';
+		}
+		if ($this->charset) {
+                    $mail->CharSet = $this->charset;
 		}
 		
 		return $mail;
