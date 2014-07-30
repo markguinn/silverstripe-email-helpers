@@ -1,5 +1,8 @@
 <?php
 
+//require EMAIL_HELPERS_BASE . '/thirdparty/PHPMailerAutoload.php';
+require '../email-helpers/thirdparty/PHPMailerAutoload.php';
+
 /**
  * This is a simple extension of the built in SS email class
  * that uses the PHPMailer library to send emails via SMTP.
