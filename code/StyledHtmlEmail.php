@@ -1,4 +1,6 @@
 <?php
+use Pelago\Emogrifier;
+
 /**
  * Same as the normal system email class, but runs the content through
  * Emogrifier to merge css style inline before sending.
