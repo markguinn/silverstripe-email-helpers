@@ -1,4 +1,8 @@
 <?php
+
+//require EMAIL_HELPERS_BASE . '/thirdparty/PHPMailerAutoload.php';
+require '../email-helpers/thirdparty/PHPMailerAutoload.php';
+
 /**
  * This is a simple extension of the built in SS email class
  * that uses the PHPMailer library to send emails via SMTP.
@@ -29,13 +33,28 @@ class SmtpMailer extends Mailer {
 	 */
 	protected $pass;
 	
+	/**
+ 	 * @var string $charset - charset for mail message
+	 */
+	protected $charset;
+	
+	/**
+	 * @var string $tls - use tls?
+	 */
+	protected $tls;
 	
 	/**
 	 * creates and configures the mailer
 	 */
-	function __construct($host, $user=false, $pass=false) {
+	function __construct($host, $user=false, $pass=false, $tls=false, $charset=false) {
 		$this->setHost($host);
 		$this->setCredentials($user, $pass);
+		if ($tls) {
+		    $this->tls = $tls;
+		}
+		if ($charset) {
+		    $this->charset = $charset;
+		}
 	}
 	
 	/**
@@ -66,11 +85,17 @@ class SmtpMailer extends Mailer {
 		$mail = new PHPMailer();
 		$mail->IsSMTP();
 		$mail->Host = $this->host;		
-		
+
 		if ($this->user) {
 			$mail->SMTPAuth = true; // turn on SMTP authentication
 			$mail->Username = $this->user;
 			$mail->Password = $this->pass;
+		}
+		if ($this->tls) {
+		    $mail->SMTPSecure = 'tls';
+		}
+		if ($this->charset) {
+                    $mail->CharSet = $this->charset;
 		}
 		
 		return $mail;

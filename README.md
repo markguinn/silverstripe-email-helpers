@@ -1,10 +1,16 @@
 SilverStripe Email Helpers
 ==========================
 
-Contains replacement Mailer object that utilizes PHPMailer to send e-mail via SMTP instead of php's mail() function.
-Also includes a drop-in replacement for the Email class called StyledHtmlEmail. If used with HTML emails it allows
-you to include a style section at the top of the email which will then be inlined as style attributes on the
-actual html tags to promote better compatibility across email clients.
+Contains replacement Mailer object that utilizes PHPMailer to send
+e-mail via SMTP instead of php's mail() function.  Optionally, TLS can
+be enabled for secure communication with the SMTP server and a charset
+for the e-mail encoding can be specified.
+
+Also includes a drop-in replacement for the Email class called
+StyledHtmlEmail.  If used with HTML emails it allows you to include a style
+section at the top of the email which will then be inlined as style
+attributes on the actual html tags to promote better compatibility across
+email clients.
 
 ## Requirements
 Silverstripe 2.4+ or 3.0+
@@ -16,7 +22,10 @@ Download this module into a folder in the root of your project. Does not require
 To use the SMTP mailer at the following code to your _config.php:
 
 ```php
-$mailer = new SmtpMailer('yourserver.com', 'username', 'password');
+$tls = true; // use tls authentication if true
+             // you can specify a port as in 'yourserver.com:587'
+$charset = 'UTF-8'; // use specified charset if set
+$mailer = new SmtpMailer('yourserver.com', 'username', 'password', $tls, $charset);
 Email::set_mailer($mailer);
 ```
 
