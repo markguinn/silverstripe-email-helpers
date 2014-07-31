@@ -1,8 +1,4 @@
 <?php
-
-//require EMAIL_HELPERS_BASE . '/thirdparty/PHPMailerAutoload.php';
-require '../email-helpers/thirdparty/PHPMailerAutoload.php';
-
 /**
  * This is a simple extension of the built in SS email class
  * that uses the PHPMailer library to send emails via SMTP.
@@ -16,8 +12,8 @@ require '../email-helpers/thirdparty/PHPMailerAutoload.php';
  * @package sstools
  * @subpackage smtpmailer
  */ 
-class SmtpMailer extends Mailer {
-	
+class SmtpMailer extends Mailer
+{
 	/**
 	 * @var string $host - smtp host
 	 */
@@ -39,27 +35,31 @@ class SmtpMailer extends Mailer {
 	protected $charset;
 	
 	/**
-	 * @var string $tls - use tls?
+	 * @var bool $tls - use tls?
 	 */
 	protected $tls;
-	
+
+
 	/**
 	 * creates and configures the mailer
 	 */
-	function __construct($host, $user=false, $pass=false, $tls=false, $charset=false) {
+	function __construct($host=false, $user=false, $pass=false, $tls='fallback', $charset=false) {
+		if ($host === false)     $host    = Config::inst()->get('SmtpMailer', 'host');
+		if ($user === false)     $user    = Config::inst()->get('SmtpMailer', 'user');
+		if ($pass === false)     $pass    = Config::inst()->get('SmtpMailer', 'password');
+		if ($tls === 'fallback') $tls     = Config::inst()->get('SmtpMailer', 'tls');
+		if ($charset === false)  $charset = Config::inst()->get('SmtpMailer', 'charset');
+
 		$this->setHost($host);
 		$this->setCredentials($user, $pass);
-		if ($tls) {
-		    $this->tls = $tls;
-		}
-		if ($charset) {
-		    $this->charset = $charset;
-		}
+	    $this->setTls($tls);
+	    $this->setCharset($charset);
 	}
 	
 	/**
 	 * sets the smtp host
 	 * @param string $host
+	 * @return $this;
 	 */
 	function setHost($host) {
 		$this->host = $host;
@@ -70,14 +70,49 @@ class SmtpMailer extends Mailer {
 	 * sets the username and password
 	 * @param string $user
 	 * @param string $pass
+	 * @return $this;
 	 */
 	function setCredentials($user, $pass) {
 		$this->user = $user;
 		$this->pass = $pass;
 		return $this;
 	}
-		
-	
+
+	/**
+	 * @param string $tls
+	 * @return $this
+	 */
+	public function setTls($tls) {
+		$this->tls = $tls;
+		return $this;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getTls() {
+		return $this->tls;
+	}
+
+
+	/**
+	 * @param string $charset
+	 * @return $this
+	 */
+	public function setCharset($charset) {
+		$this->charset = $charset;
+		return $this;
+	}
+
+
+	/**
+	 * @return string
+	 */
+	public function getCharset() {
+		return $this->charset;
+	}
+
 	/**
 	 * creates a new phpmailer object
 	 */
@@ -91,11 +126,13 @@ class SmtpMailer extends Mailer {
 			$mail->Username = $this->user;
 			$mail->Password = $this->pass;
 		}
+
 		if ($this->tls) {
 		    $mail->SMTPSecure = 'tls';
 		}
+
 		if ($this->charset) {
-                    $mail->CharSet = $this->charset;
+			$mail->CharSet = $this->charset;
 		}
 		
 		return $mail;
@@ -194,17 +231,18 @@ class SmtpMailer extends Mailer {
 		
 		return $mail;
 	}
-	
-	
+
+
 	/**
 	 * Send a plain-text email.
-	 *  
-	 * @param string $to
-	 * @param string $from
-	 * @param string �subject
-	 * @param string $plainContent
-	 * @param bool $attachedFiles
-	 * @param array $customheaders
+	 *
+	 * @param string     $to
+	 * @param string     $from
+	 * @param string     $subject
+	 * @param string     $plainContent
+	 * @param array|bool $attachedFiles
+	 * @param array|bool $customheaders
+	 *
 	 * @return bool
 	 */
 	function sendPlain($to, $from, $subject, $plainContent, $attachedFiles = false, $customheaders = false) {
@@ -221,10 +259,19 @@ class SmtpMailer extends Mailer {
 		}		
 	}
 
-	
+
 	/**
 	 * Send a multi-part HTML email.
-	 * 
+	 *
+	 * @param string $to
+	 * @param string $from
+	 * @param string $subject
+	 * @param string $htmlContent
+	 * @param array|bool $attachedFiles
+	 * @param array|bool $customheaders
+	 * @param bool $plainContent
+	 * @param bool $inlineImages
+	 *
 	 * @return bool
 	 */
 	function sendHTML($to, $from, $subject, $htmlContent, $attachedFiles = false, $customheaders = false, $plainContent = false, $inlineImages = false) {
@@ -243,8 +290,7 @@ class SmtpMailer extends Mailer {
 			return false;
 		}		
 	}
-	
-	
+
 }
 
 

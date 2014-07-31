@@ -10,10 +10,10 @@
             "role": "Developer"
 		}
 	],
-
-	"require":
-	{
-		"silverstripe/framework": "3.*"
+	"require": {
+		"silverstripe/framework": "~3.0",
+		"pelago/emogrifier": "dev-master",
+		"phpmailer/phpmailer": "~5.2.8"
 	},
 	"extra": {
 		"installer-name": "email-helpers",
@@ -22,6 +22,6 @@
 		}
 	},
 	"replace": {
-    		"markguinn/silverstripe-email-helpers": "*"
-    	}
+        "markguinn/silverstripe-email-helpers": "*"
+    }
 }
