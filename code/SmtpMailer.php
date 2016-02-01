@@ -136,7 +136,7 @@ class SmtpMailer extends Mailer
     protected function initMailer()
     {
         $mail = new PHPMailer();
-        $mail->IsSMTP();
+        $mail->isSMTP();
         $mail->Host = $this->host;
 
         if ($this->user) {
