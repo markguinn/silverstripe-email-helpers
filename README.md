@@ -1,10 +1,13 @@
 SilverStripe Email Helpers
 ==========================
 
+[![Build Status](https://travis-ci.org/markguinn/silverstripe-email-helpers.svg)](https://travis-ci.org/markguinn/silverstripe-email-helpers)
+
 Contains replacement Mailer object that utilizes PHPMailer to send
 e-mail via SMTP instead of php's mail() function.  Optionally, TLS can
 be enabled for secure communication with the SMTP server and a charset
-for the e-mail encoding can be specified.
+for the e-mail encoding can be specified.  Any embedded CSS, and a specified 
+external CSS file, are inlined into the HTML. 
 
 Also includes a drop-in replacement for the Email class called
 StyledHtmlEmail.  If used with HTML emails it allows you to include a style
@@ -22,15 +25,9 @@ Install via composer:
 composer require markguinn/silverstripe-email-helpers:dev-master
 ```
 
-This module now uses composer to install PHPMailer and Emogrifier. If installing
-manually, you will need to install those two dependencies and make sure they are
-autoloaded or required somehow (composer does this automatically). You can find
-them on github here:
-
+This module installs PHPMailer and Emogrifier:
  - https://github.com/PHPMailer/PHPMailer
  - https://github.com/jjriv/emogrifier
-
-(but really you should learn how to use composer)
 
 ## Usage
 To use the SMTP mailer at the following code to your _config.php:
@@ -42,6 +39,11 @@ $charset = 'UTF-8'; // use specified charset if set
 $mailer = new SmtpMailer('yourserver.com', 'username', 'password', $tls, $charset);
 Email::set_mailer($mailer);
 ```
+And optionally, to inline CSS from an external file:
+```
+SmtpMailer:
+  cssfile: 'themes/{yourtheme}/css/externalcssfile.css'
+```
 
 Alternatively, any of these can be set using the config system like so:
 
@@ -52,6 +54,7 @@ SmtpMailer:
   password: password
   tls: true
   charset: UTF-8
+  cssfile: 'themes/{yourtheme}/css/externalcssfile.css'
 ```
 
 And then:

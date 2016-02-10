@@ -15,6 +15,13 @@
 class SmtpMailer extends Mailer
 {
     /**
+     * CSS file to inline into HTML
+     *
+     * @var string $cssfile path to css file from project root
+     */
+    private static $cssfile = '';
+    
+    /**
      * @var string $host - smtp host
      */
     protected $host;
@@ -283,7 +290,7 @@ class SmtpMailer extends Mailer
 
 
     /**
-     * Send a multi-part HTML email.
+     * Send a multi-part HTML email with inlined CSS
      *
      * @param string $to
      * @param string $from
@@ -299,18 +306,19 @@ class SmtpMailer extends Mailer
     public function sendHTML($to, $from, $subject, $htmlContent, $attachedFiles = false, $customheaders = false, $plainContent = false, $inlineImages = false)
     {
         $mail = $this->initEmail($to, $from, $subject, $attachedFiles, $customheaders);
-        
+
         // set up the body
         // @todo inlineimages
+        $mail->Body = InlineCSS::convert($htmlContent, self::$cssfile);
         $mail->IsHTML(true);
-        $mail->Body = $htmlContent;
+
         if ($plainContent) {
             $mail->AltBody = $plainContent;
         }
-        
+
         // send and return
         if ($mail->Send()) {
-            return array($to,$subject,$htmlContent,$customheaders);
+            return array($to, $subject, $mail->Body, $customheaders);
         } else {
             return false;
         }

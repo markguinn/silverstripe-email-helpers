@@ -15,6 +15,9 @@
 		"pelago/emogrifier": "dev-master",
 		"phpmailer/phpmailer": "~5.2.8"
 	},
+	"require-dev": {
+		"phpunit/PHPUnit": "3.7.*@stable"
+	},
 	"extra": {
 		"installer-name": "email-helpers",
 		"branch-alias": {
