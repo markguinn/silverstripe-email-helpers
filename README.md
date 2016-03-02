@@ -1,10 +1,13 @@
 SilverStripe Email Helpers
 ==========================
 
+[![Build Status](https://travis-ci.org/markguinn/silverstripe-email-helpers.svg)](https://travis-ci.org/markguinn/silverstripe-email-helpers)
+
 Contains replacement Mailer object that utilizes PHPMailer to send
 e-mail via SMTP instead of php's mail() function.  Optionally, TLS can
 be enabled for secure communication with the SMTP server and a charset
-for the e-mail encoding can be specified.
+for the e-mail encoding can be specified.  In addition, embedded CSS, plus a specified 
+external CSS file, can be inlined into the email's HTML.
 
 Also includes a drop-in replacement for the Email class called
 StyledHtmlEmail.  If used with HTML emails it allows you to include a style
@@ -22,25 +25,20 @@ Install via composer:
 composer require markguinn/silverstripe-email-helpers:dev-master
 ```
 
-This module now uses composer to install PHPMailer and Emogrifier. If installing
-manually, you will need to install those two dependencies and make sure they are
-autoloaded or required somehow (composer does this automatically). You can find
-them on github here:
-
+This module installs PHPMailer and Emogrifier:
  - https://github.com/PHPMailer/PHPMailer
  - https://github.com/jjriv/emogrifier
 
-(but really you should learn how to use composer)
-
 ## Usage
-To use the SMTP mailer at the following code to your _config.php:
+### SMTP Mailer
+To use the SMTP mailer add the following code to your _config.php:
 
 ```php
 $tls = true;        // use tls authentication if true
 $charset = 'UTF-8'; // use specified charset if set
 // you can specify a port as in 'yourserver.com:587'
 $mailer = new SmtpMailer('yourserver.com', 'username', 'password', $tls, $charset);
-Email::set_mailer($mailer);
+Email::set_mailer($mailer);  // or Injector::inst()->registerService($mailer, 'Mailer');
 ```
 
 Alternatively, any of these can be set using the config system like so:
@@ -53,13 +51,45 @@ SmtpMailer:
   tls: true
   charset: UTF-8
 ```
+And then in _config.php:
 
-And then:
-
-```
+```php
 Email::set_mailer( new SmtpMailer() );
 ```
 
+### Emogrified Smtp Mailer
+If you wish to embed CSS into your email's HTML then use the `EmogrifiedSmtpMailer` class.  Add the following code to your _config.php:
+
+```php
+$tls = true;
+$charset = 'UTF-8';
+$externalcssfile = 'themes/{yourtheme}/css/externalcssfile.css';  // specify the path to your css file
+$SMTPDebug = 2;  // Levels 0-4 available
+$logfailedemail = true;  // Log a notice with PHPMailer's error information
+$mailer = new EmogrifiedSmtpMailer('yourserver.com', 'username', 'password', $tls, $charset, $externalcssfile, $SMTPDebug, $logfailedemail);
+Email::set_mailer($mailer);  // or Injector::inst()->registerService($mailer, 'Mailer');
+```
+
+Alternatively, any of these can be set using the config system like so:
+
+```
+EmogrifiedSmtpMailer:
+  host: yourserver.com
+  user: username
+  password: password
+  tls: true
+  charset: UTF-8
+  cssfile: 'themes/{yourtheme}/css/externalcssfile.css'
+  SMTPDedug: 2
+  logfailedemail: true
+```
+And then in _config.php:
+
+```php
+Email::set_mailer( new EmogrifiedSmtpMailer() );
+```
+
+### Styled Html Email
 To use the styled email, just literally use the StyledHtmlEmail class where you'd normally use the Email class
 and add a single style tag in the body of the email. For example:
 
