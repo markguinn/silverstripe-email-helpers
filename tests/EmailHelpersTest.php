@@ -12,7 +12,8 @@ class EmailHelpersTest extends SapphireTest
     public function testSmtpMailerSetup()
     {
         // PHPMailer setup
-        Injector::inst()->registerService(new SmtpMailer('yourserver.com:587', 'username', 'password', true, 'UTF-8'), 'Mailer');
+        $mailer = new SmtpMailer('yourserver.com:587', 'username', 'password', true, 'UTF-8');
+        Injector::inst()->registerService($mailer, 'Mailer');
 
         $smtpmailer = Email::mailer();
         $this->assertEquals('SmtpMailer', get_class($smtpmailer), "SmtpMailer class is used for sending emails");
@@ -20,9 +21,24 @@ class EmailHelpersTest extends SapphireTest
         $this->assertContains('UTF-8', $smtpmailer->getCharset(), "Charset set to UTF-8 as set in Injector");
     }
 
+    public function testEmogrifiedSmtpMailerSetup()
+    {
+        // PHPMailer setup
+        $mailer = new EmogrifiedSmtpMailer('yourserver.com:587', 'username', 'password', true, 'UTF-8', 'silvershop/css/order.css', 1, true);
+        Injector::inst()->registerService($mailer, 'Mailer');
+
+        $emogrifiedsmtpmailer = Email::mailer();
+        $this->assertEquals('EmogrifiedSmtpMailer', get_class($emogrifiedsmtpmailer), "EmogrifiedSmtpMailer class is used for sending emails");
+        $this->assertTrue($emogrifiedsmtpmailer->getTls(), "tls is set to true as set in Injector");
+        $this->assertSame('UTF-8', $emogrifiedsmtpmailer->getCharset(), "Charset set to UTF-8 as set in Injector");
+        $this->assertSame('silvershop/css/order.css', $emogrifiedsmtpmailer->getCSSfile(), 'The CSS file is set to silvershop/css/order.css');
+        $this->assertSame(1, $emogrifiedsmtpmailer->getSMTPDebug(), 'SMTPDebug is set to 1');
+        $this->assertTrue($emogrifiedsmtpmailer->getLogfailedemail(), "Failed emails to be logged");
+
+    }
+
     public function testInlineCSS()
     {
-
         // Get HTML file from Fixtures
         $fileLocation = join(DIRECTORY_SEPARATOR, array(__DIR__, 'fixtures/testhtml.html'));
         $fileHandler = fopen($fileLocation, 'r');
