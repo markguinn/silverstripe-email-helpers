@@ -51,10 +51,10 @@ SmtpMailer:
   tls: true
   charset: UTF-8
 ```
-And then:
+And then in _config.php:
 
-```
-Email::set_mailer( new SmtpMailer() );  // or Injector::inst()->registerService($mailer, 'Mailer');
+```php
+Email::set_mailer( new SmtpMailer() );
 ```
 
 ### Emogrified Smtp Mailer
@@ -83,10 +83,10 @@ EmogrifiedSmtpMailer:
   SMTPDedug: 2
   logfailedemail: true
 ```
-And then:
+And then in _config.php:
 
-```
-Email::set_mailer( new SmtpMailer() );  // or Injector::inst()->registerService($mailer, 'Mailer');
+```php
+Email::set_mailer( new EmogrifiedSmtpMailer() );
 ```
 
 ### Styled Html Email
