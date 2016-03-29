@@ -163,7 +163,10 @@ class EmogrifiedSmtpMailer extends SmtpMailer
         }
         if ($level = $this->getSMTPDebug()) {
             $mail->SMTPDebug = $level;
-            $mail->Debugoutput = 'html';  // HTML friendly report
+            $mail->Debugoutput = function ($str, $level)
+            {
+                SS_Log::log(new Exception(print_r($str, true)), SS_Log::NOTICE);
+            };
         }
 
         // send and return
