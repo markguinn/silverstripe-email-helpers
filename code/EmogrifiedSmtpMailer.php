@@ -40,23 +40,18 @@ class EmogrifiedSmtpMailer extends SmtpMailer
     /**
      * creates and configures the mailer
      */
-    public function __construct($host=false, $user=false, $pass=false, $tls='fallback', $charset=false, $cssfile=false, $SMTPDebug='fallback', $logfailedemail=false)
-    {
-        if ($host === false) {
-            $host = Config::inst()->get('EmogrifiedSmtpMailer', 'host');
-        }
-        if ($user === false) {
-            $user = Config::inst()->get('EmogrifiedSmtpMailer', 'user');
-        }
-        if ($pass === false) {
-            $pass = Config::inst()->get('EmogrifiedSmtpMailer', 'password');
-        }
-        if ($tls === 'fallback') {
-            $tls = Config::inst()->get('EmogrifiedSmtpMailer', 'tls');
-        }
-        if ($charset === false) {
-            $charset = Config::inst()->get('EmogrifiedSmtpMailer', 'charset');
-        }
+    public function __construct(
+        $host=false,
+        $user=false,
+        $pass=false,
+        $encryption='fallback',
+        $charset=false,
+        $cssfile=false,
+        $SMTPDebug='fallback',
+        $logfailedemail=false
+    ) {
+        parent::__construct($host, $user, $pass, $encryption, $charset);
+
         if ($cssfile === false) {
             $cssfile = Config::inst()->get('EmogrifiedSmtpMailer', 'cssfile');
         }
@@ -66,11 +61,7 @@ class EmogrifiedSmtpMailer extends SmtpMailer
         if ($logfailedemail === false) {
             $logfailedemail = Config::inst()->get('EmogrifiedSmtpMailer', 'logfailedemail');
         }
-
-        $this->setHost($host);
-        $this->setCredentials($user, $pass);
-        $this->setTls($tls);
-        $this->setCharset($charset);
+        
         $this->setCSSfile($cssfile);
         if ($SMTPDebug) {
             $this->setSMTPDebug($SMTPDebug);

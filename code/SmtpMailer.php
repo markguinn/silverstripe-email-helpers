@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is a simple extension of the built in SS email class
  * that uses the PHPMailer library to send emails via SMTP.
@@ -18,55 +19,98 @@ class SmtpMailer extends Mailer
      * @var string $host - smtp host
      */
     protected $host;
-    
+
     /**
      * @var string $user - smtp username
      */
     protected $user;
-    
+
     /**
      * @var string $pass - smtp password
      */
     protected $pass;
-    
+
     /**
      * @var string $charset - charset for mail message
      */
     protected $charset;
-    
+
     /**
      * @var bool $tls - use tls?
+     * @deprecated 2.0 - use $encryption instead
      */
     protected $tls;
+
+    /**
+     * @var int $port - the smpt server port
+     */
+    protected $port;
+
+    /**
+     * @var mixed $encryption - the encryption to use. Either 'tls', 'ssl', or false
+     */
+    protected $encryption;
 
 
     /**
      * creates and configures the mailer
+     * @param string|boolean $host the SMTP server hostname, or `false` to use the default from the config API.
+     * @param string|boolean $user the SMTP username, or `false` to use the default from the config API.
+     * @param string|boolean $pass the SMTP password, or `false` to use the default from the config API.
+     * @param string|boolean $encryption the SMTP encryption. 'tls' or 'ssl' or false to disable encryption.
+     *  Set to 'fallback' to use the default from the config API
+     * @param string|boolean $charset the charset to use, or `false` to use the default from the config API.
+     * @param int|boolean $port the port to use, or `false` to use the default from the config API.
      */
-    public function __construct($host=false, $user=false, $pass=false, $tls='fallback', $charset=false)
-    {
+    public function __construct(
+        $host = false,
+        $user = false,
+        $pass = false,
+        $encryption = 'fallback',
+        $charset = false,
+        $port = false
+    ) {
+        $cfg = $this->config();
+
         if ($host === false) {
-            $host    = Config::inst()->get('SmtpMailer', 'host');
+            $host = $cfg->host;
         }
         if ($user === false) {
-            $user    = Config::inst()->get('SmtpMailer', 'user');
+            $user = $cfg->user;
         }
         if ($pass === false) {
-            $pass    = Config::inst()->get('SmtpMailer', 'password');
+            $pass = $cfg->password;
         }
-        if ($tls === 'fallback') {
-            $tls     = Config::inst()->get('SmtpMailer', 'tls');
+
+        if ($encryption === true) {
+            $encryption = 'tls';
+        } elseif ($encryption === 'fallback') {
+            if ($cfg->tls) {
+                Deprecation::notice(
+                    '2.0',
+                    'Use SmtpMailer.encryption config setting instead of \'tls\'.',
+                    Deprecation::SCOPE_GLOBAL
+                );
+                $encryption = 'tls';
+            } else {
+                $encryption = $cfg->encryption;
+            }
         }
+
         if ($charset === false) {
-            $charset = Config::inst()->get('SmtpMailer', 'charset');
+            $charset = $cfg->charset;
+        }
+        if ($port === false) {
+            $port = $cfg->port;
         }
 
         $this->setHost($host);
         $this->setCredentials($user, $pass);
-        $this->setTls($tls);
+        $this->setEncryption($encryption);
         $this->setCharset($charset);
+        $this->setPort($port);
     }
-    
+
     /**
      * sets the smtp host
      * @param string $host
@@ -77,7 +121,16 @@ class SmtpMailer extends Mailer
         $this->host = $host;
         return $this;
     }
-    
+
+    /**
+     * Get the SMTP host
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
     /**
      * sets the username and password
      * @param string $user
@@ -92,24 +145,66 @@ class SmtpMailer extends Mailer
     }
 
     /**
-     * @param string $tls
+     * @param boolean $tls
      * @return $this
+     * @deprecated 2.0 use @see setEncryption instead
      */
     public function setTls($tls)
     {
-        $this->tls = $tls;
+        Deprecation::notice('2.0', 'Use setEncryption("tls") instead.');
+        $this->setEncryption($tls ? 'tls' : false);
         return $this;
     }
 
-
     /**
-     * @return string
+     * @return boolean
+     * @deprecated 2.0 use @see getEncryption instead
      */
     public function getTls()
     {
-        return $this->tls;
+        Deprecation::notice('2.0', 'Use getEncryption instead.');
+        return $this->getEncryption() === 'tls';
     }
 
+    /**
+     * Set the server port
+     * @param int $value
+     * @return $this
+     */
+    public function setPort($value)
+    {
+        $this->port = $value;
+        return $this;
+    }
+
+    /**
+     * Get the server port
+     * @return int
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
+     * Set the encryption to use. Either 'ssl', 'tls' or false
+     * @param mixed $value
+     * @return $this
+     */
+    public function setEncryption($value)
+    {
+        $this->encryption = $value;
+        return $this;
+    }
+
+    /**
+     * Get the encryption to use
+     * @return mixed
+     */
+    public function getEncryption()
+    {
+        return $this->encryption;
+    }
 
     /**
      * @param string $charset
@@ -145,18 +240,20 @@ class SmtpMailer extends Mailer
             $mail->Password = $this->pass;
         }
 
-        if ($this->tls) {
-            $mail->SMTPSecure = 'tls';
+        $mail->SMTPSecure = $this->getEncryption();
+
+        if ($this->port) {
+            $mail->Port = $this->port;
         }
 
         if ($this->charset) {
             $mail->CharSet = $this->charset;
         }
-        
+
         return $mail;
     }
-    
-    
+
+
     /**
      * takes an email with or without a name and returns
      * email and name as separate parts
@@ -172,9 +269,9 @@ class SmtpMailer extends Mailer
         }
     }
 
-    
+
     /**
-     * takes a list of emails, splits out the name and calls 
+     * takes a list of emails, splits out the name and calls
      * the given function. meant to be used with AddAddress, AddBcc and AddCc
      */
     protected function explodeList($in, $mail, $func)
@@ -185,21 +282,21 @@ class SmtpMailer extends Mailer
             $mail->$func($a, $b);
         }
     }
-    
-    
+
+
     /**
      * shared setup for both html and plain
      */
     protected function initEmail($to, $from, $subject, $attachedFiles = false, $customheaders = false)
     {
         $mail = $this->initMailer();
-        
+
         // set the from
         list($mail->From, $mail->FromName) = $this->splitName($from);
-        
+
         // set the to
         $this->explodeList($to, $mail, 'AddAddress');
-        
+
         // set cc and bcc if needed
         if (is_array($customheaders) && isset($customheaders['Cc'])) {
             $this->explodeList($customheaders['Cc'], $mail, 'AddCC');
@@ -210,7 +307,7 @@ class SmtpMailer extends Mailer
             $this->explodeList($customheaders['Bcc'], $mail, 'AddBCC');
             unset($customheaders['Bcc']);
         }
-    
+
         // set up the subject
         $mail->Subject = $subject;
 
@@ -227,7 +324,7 @@ class SmtpMailer extends Mailer
                 }
             }
         }
-        
+
         // Messages with the X-SilverStripeMessageID header can be tracked
         if (isset($customheaders["X-SilverStripeMessageID"]) && defined('BOUNCE_EMAIL')) {
             $bounceAddress = BOUNCE_EMAIL;
@@ -238,18 +335,18 @@ class SmtpMailer extends Mailer
         } else {
             $bounceAddress = $from;
         }
-        
-        $headers["X-Mailer"]    = X_MAILER;
+
+        $headers["X-Mailer"] = X_MAILER;
         if (!isset($customheaders["X-Priority"])) {
-            $headers["X-Priority"]    = 3;
+            $headers["X-Priority"] = 3;
         }
-    
+
         $headers = array_merge((array)$headers, (array)$customheaders);
 
         foreach ($headers as $k => $v) {
             $mail->AddCustomHeader("$k: $v");
         }
-        
+
         return $mail;
     }
 
@@ -257,10 +354,10 @@ class SmtpMailer extends Mailer
     /**
      * Send a plain-text email.
      *
-     * @param string     $to
-     * @param string     $from
-     * @param string     $subject
-     * @param string     $plainContent
+     * @param string $to
+     * @param string $from
+     * @param string $subject
+     * @param string $plainContent
      * @param array|bool $attachedFiles
      * @param array|bool $customheaders
      *
@@ -269,13 +366,13 @@ class SmtpMailer extends Mailer
     public function sendPlain($to, $from, $subject, $plainContent, $attachedFiles = false, $customheaders = false)
     {
         $mail = $this->initEmail($to, $from, $subject, $attachedFiles, $customheaders);
-        
+
         // set up the body
         $mail->Body = $plainContent;
-        
+
         // send and return
         if ($mail->Send()) {
-            return array($to,$subject,$plainContent,$customheaders);
+            return array($to, $subject, $plainContent, $customheaders);
         } else {
             return false;
         }
@@ -296,10 +393,18 @@ class SmtpMailer extends Mailer
      *
      * @return bool
      */
-    public function sendHTML($to, $from, $subject, $htmlContent, $attachedFiles = false, $customheaders = false, $plainContent = false, $inlineImages = false)
-    {
+    public function sendHTML(
+        $to,
+        $from,
+        $subject,
+        $htmlContent,
+        $attachedFiles = false,
+        $customheaders = false,
+        $plainContent = false,
+        $inlineImages = false
+    ) {
         $mail = $this->initEmail($to, $from, $subject, $attachedFiles, $customheaders);
-        
+
         // set up the body
         // @todo inlineimages
         $mail->IsHTML(true);
@@ -307,10 +412,10 @@ class SmtpMailer extends Mailer
         if ($plainContent) {
             $mail->AltBody = $plainContent;
         }
-        
+
         // send and return
         if ($mail->Send()) {
-            return array($to,$subject,$htmlContent,$customheaders);
+            return array($to, $subject, $htmlContent, $customheaders);
         } else {
             return false;
         }
