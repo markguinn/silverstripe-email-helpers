@@ -8,6 +8,54 @@
  */
 class EmailHelpersTest extends SapphireTest
 {
+    /**
+     * @expectedException PHPUnit_Framework_Error_Deprecated
+     */
+    public function testConfiguration()
+    {
+        $mailer = new SmtpMailer();
+        // test default/unconfigured class
+        $this->assertNull($mailer->getHost());
+        $this->assertNull($mailer->getEncryption());
+        $this->assertNull($mailer->getCharset());
+        $this->assertNull($mailer->getPort());
+
+        Config::inst()->update('SmtpMailer', 'host', 'example.com');
+        Config::inst()->update('SmtpMailer', 'port', 123);
+        Config::inst()->update('SmtpMailer', 'password', 'dummyPass');
+        Config::inst()->update('SmtpMailer', 'encryption', 'ssl');
+        Config::inst()->update('SmtpMailer', 'charset', 'latin');
+
+        $mailer = new SmtpMailer();
+        $this->assertEquals('example.com', $mailer->getHost());
+        $this->assertEquals('ssl', $mailer->getEncryption());
+        $this->assertEquals(123, $mailer->getPort());
+        $this->assertEquals('latin', $mailer->getCharset());
+
+        // Subclass will inherit config
+        $mailer = new EmogrifiedSmtpMailer();
+        $this->assertEquals('example.com', $mailer->getHost());
+        $this->assertEquals('ssl', $mailer->getEncryption());
+        $this->assertEquals(123, $mailer->getPort());
+        $this->assertEquals('latin', $mailer->getCharset());
+
+        // but subclass can have a separate config as well
+        Config::inst()->update('EmogrifiedSmtpMailer', 'port', 444);
+
+        $mailer = new EmogrifiedSmtpMailer();
+        $this->assertEquals(444, $mailer->getPort());
+
+        // mixed values from constructor and config
+        $mailer = new SmtpMailer('dummy.com', 'user', 'pass', 'tls');
+        $this->assertEquals('dummy.com', $mailer->getHost());
+        $this->assertEquals('tls', $mailer->getEncryption());
+        $this->assertEquals(123, $mailer->getPort());
+        $this->assertEquals('latin', $mailer->getCharset());
+
+        Config::inst()->update('SmtpMailer', 'tls', true);
+        // this should throw an exception (deprecated notice)
+        new SmtpMailer();
+    }
 
     public function testSmtpMailerSetup()
     {
@@ -17,7 +65,7 @@ class EmailHelpersTest extends SapphireTest
 
         $smtpmailer = Email::mailer();
         $this->assertEquals('SmtpMailer', get_class($smtpmailer), "SmtpMailer class is used for sending emails");
-        $this->assertTrue($smtpmailer->getTls(), "tls is set to true as set in Injector");
+        $this->assertEquals('tls', $smtpmailer->getEncryption(), "tls is set to true as set in Injector");
         $this->assertContains('UTF-8', $smtpmailer->getCharset(), "Charset set to UTF-8 as set in Injector");
     }
 
@@ -29,7 +77,7 @@ class EmailHelpersTest extends SapphireTest
 
         $emogrifiedsmtpmailer = Email::mailer();
         $this->assertEquals('EmogrifiedSmtpMailer', get_class($emogrifiedsmtpmailer), "EmogrifiedSmtpMailer class is used for sending emails");
-        $this->assertTrue($emogrifiedsmtpmailer->getTls(), "tls is set to true as set in Injector");
+        $this->assertEquals('tls', $emogrifiedsmtpmailer->getEncryption(), "tls is set to true as set in Injector");
         $this->assertSame('UTF-8', $emogrifiedsmtpmailer->getCharset(), "Charset set to UTF-8 as set in Injector");
         $this->assertSame('silvershop/css/order.css', $emogrifiedsmtpmailer->getCSSfile(), 'The CSS file is set to silvershop/css/order.css');
         $this->assertSame(1, $emogrifiedsmtpmailer->getSMTPDebug(), 'SMTPDebug is set to 1');

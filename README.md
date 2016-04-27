@@ -6,7 +6,7 @@ SilverStripe Email Helpers
 Contains replacement Mailer object that utilizes PHPMailer to send
 e-mail via SMTP instead of php's mail() function.  Optionally, TLS can
 be enabled for secure communication with the SMTP server and a charset
-for the e-mail encoding can be specified.  In addition, embedded CSS, plus a specified 
+for the e-mail encoding can be specified.  In addition, embedded CSS, plus a specified
 external CSS file, can be inlined into the email's HTML.
 
 Also includes a drop-in replacement for the Email class called
@@ -34,10 +34,10 @@ This module installs PHPMailer and Emogrifier:
 To use the SMTP mailer add the following code to your _config.php:
 
 ```php
-$tls = true;        // use tls authentication if true
+$encryption = 'tls'; // use tls
 $charset = 'UTF-8'; // use specified charset if set
 // you can specify a port as in 'yourserver.com:587'
-$mailer = new SmtpMailer('yourserver.com', 'username', 'password', $tls, $charset);
+$mailer = new SmtpMailer('yourserver.com', 'username', 'password', $encryption, $charset);
 Email::set_mailer($mailer);  // or Injector::inst()->registerService($mailer, 'Mailer');
 ```
 
@@ -48,7 +48,7 @@ SmtpMailer:
   host: yourserver.com
   user: username
   password: password
-  tls: true
+  encryption: tls
   charset: UTF-8
 ```
 And then in _config.php:
@@ -61,12 +61,12 @@ Email::set_mailer( new SmtpMailer() );
 If you wish to embed CSS into your email's HTML then use the `EmogrifiedSmtpMailer` class.  Add the following code to your _config.php:
 
 ```php
-$tls = true;
+$encryption = 'ssl'; // use ssl
 $charset = 'UTF-8';
 $externalcssfile = 'themes/{yourtheme}/css/externalcssfile.css';  // specify the path to your css file
 $SMTPDebug = 2;  // Levels 0-4 available
 $logfailedemail = true;  // Log a notice with PHPMailer's error information
-$mailer = new EmogrifiedSmtpMailer('yourserver.com', 'username', 'password', $tls, $charset, $externalcssfile, $SMTPDebug, $logfailedemail);
+$mailer = new EmogrifiedSmtpMailer('yourserver.com', 'username', 'password', $encryption, $charset, $externalcssfile, $SMTPDebug, $logfailedemail);
 Email::set_mailer($mailer);  // or Injector::inst()->registerService($mailer, 'Mailer');
 ```
 
@@ -77,7 +77,7 @@ EmogrifiedSmtpMailer:
   host: yourserver.com
   user: username
   password: password
-  tls: true
+  encryption: ssl
   charset: UTF-8
   cssfile: 'themes/{yourtheme}/css/externalcssfile.css'
   SMTPDedug: 2
