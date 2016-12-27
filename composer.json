@@ -13,7 +13,7 @@
 	"require": {
 		"silverstripe/framework": "~3.0",
 		"pelago/emogrifier": "~1.0",
-		"phpmailer/phpmailer": "~5.2.8"
+		"phpmailer/phpmailer": "^5.2.18"
 	},
 	"require-dev": {
 		"phpunit/PHPUnit": "3.7.*@stable"
