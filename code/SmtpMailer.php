@@ -73,8 +73,8 @@ class SmtpMailer extends Mailer
         $pass = false,
         $encryption = 'fallback',
         $charset = false,
-        $port = false
-        $smtpDebug = 0;
+        $port = false,
+        $smtpDebug = 0
     ) {
         $cfg = $this->config();
 
@@ -456,7 +456,7 @@ class SmtpMailer extends Mailer
 -        if ($mail->Send()) {
 -            return array($to, $subject, $htmlContent, $customheaders);
 -        } else {
--            return $this->checkMailError();		
+-            return $this->checkMailError();
 -        }
     }
 }
