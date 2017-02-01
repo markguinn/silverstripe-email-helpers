@@ -453,10 +453,10 @@ class SmtpMailer extends Mailer
         }
 
         // send and return
--        if ($mail->Send()) {
--            return array($to, $subject, $htmlContent, $customheaders);
--        } else {
--            return $this->checkMailError();
--        }
+        if ($mail->Send()) {
+            return array($to, $subject, $htmlContent, $customheaders);
+        } else {
+            return $this->checkMailError();
+        }
     }
 }
