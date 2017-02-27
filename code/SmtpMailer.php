@@ -42,7 +42,7 @@ class SmtpMailer extends Mailer
     protected $tls;
 
     /**
-     * @var int $port - the smpt server port
+     * @var int $port - the smtp server port
      */
     protected $port;
 
@@ -50,6 +50,11 @@ class SmtpMailer extends Mailer
      * @var mixed $encryption - the encryption to use. Either 'tls', 'ssl', or false
      */
     protected $encryption;
+
+    /**
+     * @var int $smtpDebug - Debug param that gets passed to PHPMailer
+     */
+    protected $smtpDebug;
 
 
     /**
@@ -68,7 +73,8 @@ class SmtpMailer extends Mailer
         $pass = false,
         $encryption = 'fallback',
         $charset = false,
-        $port = false
+        $port = false,
+        $smtpDebug = 0
     ) {
         $cfg = $this->config();
 
@@ -103,12 +109,16 @@ class SmtpMailer extends Mailer
         if ($port === false) {
             $port = $cfg->port;
         }
+        if ($smtpDebug === 0) {
+            $smtpDebug = $cfg->smtpDebug;
+        }
 
         $this->setHost($host);
         $this->setCredentials($user, $pass);
         $this->setEncryption($encryption);
         $this->setCharset($charset);
         $this->setPort($port);
+        $this->setSMTPDebug($smtpDebug);
     }
 
     /**
@@ -226,6 +236,16 @@ class SmtpMailer extends Mailer
     }
 
     /**
+     * @param int $smtpDebug
+     * @return $this
+     */
+    public function setSMTPDebug($smtpDebug)
+    {
+        $this->smtpDebug = $smtpDebug;
+        return $this;
+    }
+
+    /**
      * creates a new phpmailer object
      */
     protected function initMailer()
@@ -241,6 +261,10 @@ class SmtpMailer extends Mailer
         }
 
         $mail->SMTPSecure = $this->getEncryption();
+
+        if ($this->smtpDebug) {
+            $mail->SMTPDebug = $this->smtpDebug;
+        }
 
         if ($this->port) {
             $mail->Port = $this->port;
@@ -361,7 +385,7 @@ class SmtpMailer extends Mailer
      * @param array|bool $attachedFiles
      * @param array|bool $customheaders
      *
-     * @return bool
+     * @return bool|array
      */
     public function sendPlain($to, $from, $subject, $plainContent, $attachedFiles = false, $customheaders = false)
     {
@@ -370,9 +394,24 @@ class SmtpMailer extends Mailer
         // set up the body
         $mail->Body = $plainContent;
 
-        // send and return
         if ($mail->Send()) {
             return array($to, $subject, $plainContent, $customheaders);
+        } else {
+            return $this-checkMailError();
+        }
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception if he environment is dev
+     */
+    public function checkMailError()
+    {
+        if (Director::isDev()) {
+            throw new \Exception(sprintf(
+              'PHPMailer failed: %s',
+              $mail->ErrorInfo
+            ));
         } else {
             return false;
         }
@@ -417,7 +456,7 @@ class SmtpMailer extends Mailer
         if ($mail->Send()) {
             return array($to, $subject, $htmlContent, $customheaders);
         } else {
-            return false;
+            return $this->checkMailError();
         }
     }
 }
