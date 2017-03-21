@@ -397,7 +397,7 @@ class SmtpMailer extends Mailer
         if ($mail->Send()) {
             return array($to, $subject, $plainContent, $customheaders);
         } else {
-            return $this-checkMailError();
+            return $this-checkMailError($mail);
         }
     }
 
@@ -405,7 +405,7 @@ class SmtpMailer extends Mailer
      * @return bool
      * @throws \Exception if he environment is dev
      */
-    public function checkMailError()
+    public function checkMailError($mail)
     {
         if (Director::isDev()) {
             throw new \Exception(sprintf(
@@ -456,7 +456,7 @@ class SmtpMailer extends Mailer
         if ($mail->Send()) {
             return array($to, $subject, $htmlContent, $customheaders);
         } else {
-            return $this->checkMailError();
+            return $this->checkMailError($mail);
         }
     }
 }
