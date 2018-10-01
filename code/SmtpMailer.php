@@ -261,6 +261,7 @@ class SmtpMailer extends Mailer
         }
 
         $mail->SMTPSecure = $this->getEncryption();
+        $mail->SMTPAutoTLS = (boolean)$this->getEncryption();
 
         if ($this->smtpDebug) {
             $mail->SMTPDebug = $this->smtpDebug;
