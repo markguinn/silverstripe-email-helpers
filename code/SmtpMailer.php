@@ -397,7 +397,7 @@ class SmtpMailer extends Mailer
         if ($mail->Send()) {
             return array($to, $subject, $plainContent, $customheaders);
         } else {
-            return $this-checkMailError($mail);
+            return $this->checkMailError($mail);
         }
     }
 
