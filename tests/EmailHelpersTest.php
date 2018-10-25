@@ -96,7 +96,7 @@ class EmailHelpersTest extends SapphireTest
         // Note reference to external css file
         $inlinedCSS = InlineCSS::convert($htmlContent, 'email-helpers/tests/fixtures/externalcssfile.css');
 
-        $this->assertContains('<body style="font-family: Helvetica,Arial,sans-serif; font-size: 14px; line-height: 1.6em; margin: 0; width: 100% !important; height: 100%;">', $inlinedCSS, 'Body element contains inline styling');
+        $this->assertContains('<body style="font-family: Helvetica,Arial,sans-serif; font-size: 14px; line-height: 1.6em; margin: 0; height: 100%; width: 100%;">', $inlinedCSS, 'Body element contains inline styling');
         $this->assertContains('<table id="Content" cellspacing="0" cellpadding="0" summary="Order Information" style="text-align: left; margin: auto; padding-left: 20px;">', $inlinedCSS, 'Table element contains inline styling');
         $this->assertContains('<tr class="itemRow" style="background-color: red;">', $inlinedCSS, 'Table row contains inline styling');
         $this->assertContains('<td class="image" style="border: 1px;"></td>', $inlinedCSS, 'Table cell contains inline styling');
