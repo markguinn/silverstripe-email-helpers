@@ -27,7 +27,7 @@ composer require markguinn/silverstripe-email-helpers:dev-master
 
 This module installs PHPMailer and Emogrifier:
  - https://github.com/PHPMailer/PHPMailer
- - https://github.com/jjriv/emogrifier
+ - https://github.com/MyIntervals/emogrifier
 
 ## Usage
 ### SMTP Mailer
