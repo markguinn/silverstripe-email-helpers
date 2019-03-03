@@ -80,7 +80,7 @@ EmogrifiedSmtpMailer:
   encryption: ssl
   charset: UTF-8
   cssfile: 'themes/{yourtheme}/css/externalcssfile.css'
-  SMTPDedug: 2
+  SMTPDebug: 2
   logfailedemail: true
 ```
 And then in _config.php:
